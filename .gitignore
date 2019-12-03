@@ -1,0 +1,10 @@
+/package-lock.json
+/hfc-key-store/
+/wallet/
+node_modules/
+crypto-config/
+connection-*
+*.tx
+*.block
+.DS_Store
+wallet/
