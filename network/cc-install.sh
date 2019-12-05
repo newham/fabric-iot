@@ -3,6 +3,6 @@
 # Exit on first error
 set -e
 
-set -x
-./cc.sh install $1 $2 $3 $4
-set +x
+# ./cc.sh install PC 1.0 go/pc Synchro
+# ./cc.sh install DC 1.0 go/dc Synchro
+./cc.sh install ac 1.0 go/ac Synchro

@@ -11,7 +11,7 @@ CC_RUNTIME_LANGUAGE=golang
 CC_SRC_PATH=github.com/newham/fabric-iot/chaincode/go/pc
 CC_NAME=PC
 CC_VERSION=1.0
-CC_INVOKE_FUNC_NAME=initPolicy
+CC_INVOKE_FUNC_NAME="Synchro"
 # client container's name
 CLI=cli
 # action
@@ -25,12 +25,14 @@ ORG2_MSPCONFIGPATH=${CONFIG_ROOT}/crypto/peerOrganizations/org2.fabric-iot.edu/u
 ORG2_TLS_ROOTCERT_FILE=${CONFIG_ROOT}/crypto/peerOrganizations/org2.fabric-iot.edu/peers/peer0.org2.fabric-iot.edu/tls/ca.crt
 ORDERER_TLS_ROOTCERT_FILE=${CONFIG_ROOT}/crypto/ordererOrganizations/fabric-iot.edu/orderers/orderer.fabric-iot.edu/msp/tlscacerts/tlsca.fabric-iot.edu-cert.pem
 
-if [ -n $1 -a -n $2 -a -n $3 -a -n $4 -a -n $5 ]; then
+if [ -n $1 -a -n $2 -a -n $3 -a -n $4 ]; then
   ACTION=$1
   CC_NAME=$2
   CC_VERSION=$3
   CC_SRC_PATH="github.com/newham/fabric-iot/chaincode/$4"
-  CC_INVOKE_FUNC_NAME=$5
+  if [ ! $5 = '' ]; then
+    CC_INVOKE_FUNC_NAME=$5
+  fi
   echo $ACTION ${CC_NAME}:${CC_VERSION} $CC_SRC_PATH $CC_INVOKE_FUNC_NAME
 else
   echo './cc.sh ["install"/"upgrade"] [cc name] [cc version] [cc src path] [fname]'
@@ -76,13 +78,13 @@ function initCC() {
     -l "$CC_RUNTIME_LANGUAGE" \
     -v "$CC_VERSION" \
     -c '{"Args":[]}' \
-    -P "AND('Org1MSP.member','Org2MSP.member')" \
+    -P "OR('Org1MSP.member','Org2MSP.member')" \
     --tls \
     --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
     --peerAddresses peer0.org1.fabric-iot.edu:7051 \
     --tlsRootCertFiles ${ORG1_TLS_ROOTCERT_FILE}
 
-  echo "Waiting for channel created..."
+  echo "Waiting for contract instantiating..."
   process 15
 }
 
@@ -133,7 +135,7 @@ function upgradeCC() {
     -l "$CC_RUNTIME_LANGUAGE" \
     -v "$CC_VERSION" \
     -c '{"Args":[]}' \
-    -P "AND('Org1MSP.member','Org2MSP.member')" \
+    -P "OR('Org1MSP.member','Org2MSP.member')" \
     --tls \
     --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
     --peerAddresses peer0.org1.fabric-iot.edu:7051 \

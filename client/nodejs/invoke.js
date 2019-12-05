@@ -59,6 +59,7 @@ async function invoke(ccName, fName, args) {
             case "AddPolicy":
             case "DeletePolicy":
             case "UpdatePolicy":
+            case "CheckAccess":
                 const r1 = await contract.submitTransaction(fName, ...args);
                 console.log(`Transaction has been submit, result is: ${r1.toString()}`);
                 break;
