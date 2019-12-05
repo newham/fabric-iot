@@ -9,8 +9,8 @@ starttime=$(date +%s)
 # use golang as programing language
 CC_RUNTIME_LANGUAGE=golang
 CC_SRC_PATH=github.com/chaincode/go/pc
-CC_NAME=policy-cc
-CC_VERSION=1.5.1
+CC_NAME=PC
+CC_VERSION=1.0
 # client container's name
 CLI=cli
 

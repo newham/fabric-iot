@@ -21,6 +21,11 @@ docker-compose|>=1.24
 node|>=12
 golang|>=1.10
 
+### 0.3.下载本软件
+```go
+go get github.com/newham/fabric-iot
+```
+
 ## 1.目录结构
 
 |-chaincode....................................链码目录  
@@ -62,10 +67,14 @@ cd network
 ```
 ### 2.3.安装链码
 ```shell
-./install-cc.sh
+./cc-install.sh
+```
+### 2.4.更新链码
+```shell
+./cc-upgrade.sh [new version]
 ```
 *chaincode被保存在`/chaincode/go`目录中，目前只用golang实现
-### 2.4.关闭网络
+### 2.5.关闭网络
 ```shell
 ./down.sh
 ```
@@ -93,7 +102,7 @@ node ./registerUser.js
 ```
 ### 3.3.调用chaincode
 ```shell
-node ./invoke.js [chaincode_name] [function_name]
+node ./invoke.js [chaincode_name] [function_name] [args]
 ```
 
 <br>

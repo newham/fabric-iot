@@ -5,7 +5,7 @@
 > 2.The Hyperledger Fabric network is easily started with a complete shell script.  
 > 3.Detailed instructions, easy to understand.    
 
-## 0.Before starting
+## 0.Environment & Preparation
 ### 0.1.Operation System
 OS|VETSION
 -|-
@@ -20,6 +20,11 @@ docker|>=19
 docker-compose|>=1.24
 node|>=12
 golang|>=1.10
+
+### 0.3.Download src
+```go
+go get github.com/newham/fabric-iot
+```
 
 ## 1.Directory Structure
 
@@ -62,10 +67,14 @@ cers are saved to `crypto-config`
 ```
 ### 2.3.Install Chaincode
 ```shell
-./install-cc.sh
+./cc-install.sh
+```
+### 2.4.Upgrade Chaincode
+```shell
+./cc-upgrade.sh [new_version]
 ```
 *chaincode is saved to `/chaincode/go`，we only support write code with golang now.
-### 2.4.Close Network
+### 2.5.Close Network
 ```shell
 ./down.sh
 ```
@@ -93,7 +102,7 @@ node ./registerUser.js
 ```
 ### 3.3.Run Chaincode
 ```shell
-node ./invoke.js [chaincode_name] [function_name]
+node ./invoke.js [chaincode_name] [function_name] [args]
 ```
 
 <br>

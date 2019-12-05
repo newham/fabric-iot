@@ -4,36 +4,27 @@
 
 'use strict';
 
-const { ccpPath, path, FileSystemWallet, Gateway, CHANNEL_NAME, POLICY_CC_NAME } = require("./base")
+const { ccpPath, path, FileSystemWallet, Gateway, CHANNEL_NAME } = require("./base")
 
 async function main() {
     try {
         const argv = process.argv;
-        if (argv.length < 3) {
-            console.log("Input a function");
+        if (argv.length < 5) {
+            console.log("[chaincode name] [function name] [arg]");
             return;
         }
         // from 2 is args begin
-        const fName = argv[2]
-        switch (fName) {
-            case "queryPolicy":
-                if (argv.length < 4) {
-                    console.log("Query need a key")
-                    return
-                }
-                const key = argv[3]
-                queryPolicy(fName, key)
-                break;
-            default:
-                console.log("invoke support : queryPolicy, ")
-                break
-        }
+        const ccName = argv[2]
+        const fName = argv[3]
+        const args = argv.slice(4) //[a,b] to "a b"
+
+        invoke(ccName, fName, args)
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
         process.exit(1);
     }
 }
-async function queryPolicy(fName, key) {
+async function invoke(ccName, fName, args) {
     try {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -41,29 +32,43 @@ async function queryPolicy(fName, key) {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const userExists = await wallet.exists('user1');
+        const user = 'user1'
+        const userExists = await wallet.exists(user);
         if (!userExists) {
-            console.log('An identity for the user "user1" does not exist in the wallet');
+            console.log(`An identity for the user "${user}" does not exist in the wallet`);
             console.log('Run the registerUser.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccpPath, { wallet, identity: user, discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork(CHANNEL_NAME);
 
         // Get the contract from the network.
-        const contract = network.getContract(POLICY_CC_NAME);
+        const contract = network.getContract(ccName);
 
         // Evaluate the specified transaction.
         // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
         // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-        console.log(fName, key)
-        const result = await contract.evaluateTransaction(fName, key);
-        console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+        console.log(ccName, fName, ...args)
+        switch (fName) {
+            case "AddURL":
+            case "AddPolicy":
+            case "DeletePolicy":
+            case "UpdatePolicy":
+                const r1 = await contract.submitTransaction(fName, ...args);
+                console.log(`Transaction has been submit, result is: ${r1.toString()}`);
+                break;
+            default:
+                const r2 = await contract.evaluateTransaction(fName, ...args);
+                console.log(`Transaction has been evaluated, result is: ${r2.toString()}`);
+                break;
+        }
+
+        process.exit(1);
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
         process.exit(1);

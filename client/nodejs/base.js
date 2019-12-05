@@ -9,7 +9,6 @@ const FabricCAServices = require('fabric-ca-client');
 const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network');
 //const value
 const CHANNEL_NAME = 'iot-channel';
-const POLICY_CC_NAME = 'policy-cc';
 //exports
 exports.ccp = ccp;
 exports.ccpPath = ccpPath;
@@ -19,4 +18,3 @@ exports.FileSystemWallet = FileSystemWallet;
 exports.X509WalletMixin = X509WalletMixin;
 exports.Gateway = Gateway;
 exports.CHANNEL_NAME = CHANNEL_NAME;
-exports.POLICY_CC_NAME=POLICY_CC_NAME;
