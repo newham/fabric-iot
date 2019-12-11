@@ -6,6 +6,10 @@
 
 const { ccpPath, path, FileSystemWallet, Gateway, CHANNEL_NAME } = require("./base")
 
+function resp(status, msg) {
+    return { status: status, msg: msg }
+}
+
 async function main() {
     try {
         const argv = process.argv;
@@ -37,7 +41,7 @@ async function invoke(ccName, fName, args) {
         if (!userExists) {
             console.log(`An identity for the user "${user}" does not exist in the wallet`);
             console.log('Run the registerUser.js application before retrying');
-            return;
+            return resp(500, 'Run the registerUser.js application before retrying');
         }
 
         // Create a new gateway for connecting to our peer node.
@@ -62,18 +66,23 @@ async function invoke(ccName, fName, args) {
             case "CheckAccess":
                 const r1 = await contract.submitTransaction(fName, ...args);
                 console.log(`Transaction has been submit, result is: ${r1.toString()}`);
+                return resp(200, r1.toString())
                 break;
             default:
                 const r2 = await contract.evaluateTransaction(fName, ...args);
                 console.log(`Transaction has been evaluated, result is: ${r2.toString()}`);
+                return resp(200, r2.toString())
                 break;
         }
 
-        process.exit(1);
+        // process.exit(1);
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        process.exit(1);
+        return resp(500, error)
+        // process.exit(1);
     }
 }
 
 main();
+
+module.exports = { invoke }
