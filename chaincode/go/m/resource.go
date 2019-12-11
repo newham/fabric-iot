@@ -15,3 +15,9 @@ func (r Resource) ToBytes() []byte {
 	}
 	return b
 }
+
+func NewResource(b []byte) (Resource, error) {
+	r := Resource{}
+	err := json.Unmarshal(b, &r)
+	return r, err
+}

@@ -78,7 +78,7 @@ function initCC() {
     -l "$CC_RUNTIME_LANGUAGE" \
     -v "$CC_VERSION" \
     -c '{"Args":[]}' \
-    -P "OR('Org1MSP.member','Org2MSP.member')" \
+    -P "AND('Org1MSP.member','Org2MSP.member')" \
     --tls \
     --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
     --peerAddresses peer0.org1.fabric-iot.edu:7051 \
@@ -135,7 +135,7 @@ function upgradeCC() {
     -l "$CC_RUNTIME_LANGUAGE" \
     -v "$CC_VERSION" \
     -c '{"Args":[]}' \
-    -P "OR('Org1MSP.member','Org2MSP.member')" \
+    -P "AND('Org1MSP.member','Org2MSP.member')" \
     --tls \
     --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
     --peerAddresses peer0.org1.fabric-iot.edu:7051 \

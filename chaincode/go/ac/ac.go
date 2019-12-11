@@ -43,7 +43,7 @@ func (cc *ChainCode) CheckAccess(APIstub shim.ChaincodeStubInterface, args []str
 	}
 	attrs := r.GetAttrs()
 	//get policy
-	resp := APIstub.InvokeChaincode("PC", [][]byte{[]byte("QueryPolicy"), []byte(attrs.GetId())}, "iot-channel")
+	resp := APIstub.InvokeChaincode("pc", [][]byte{[]byte("QueryPolicy"), []byte(attrs.GetId())}, "iot-channel")
 	if resp.GetStatus() != 200 {
 		return shim.Error("403")
 	}
@@ -51,11 +51,13 @@ func (cc *ChainCode) CheckAccess(APIstub shim.ChaincodeStubInterface, args []str
 	policy := m.Policy{}
 	err = json.Unmarshal(resp.GetPayload(), &policy)
 	if err != nil {
-		return shim.Error(attrs.GetId() + ";" + string(resp.GetPayload()) + ";" + err.Error())
+		return shim.Error("403")
+		// return shim.Error(attrs.GetId() + ";" + string(resp.GetPayload()) + ";" + err.Error())
 	}
 	//check AP
 	if policy.AP != 1 {
-		return shim.Error(string(policy.ToBytes()) + ": AP is deney")
+		return shim.Error("403")
+		// return shim.Error(string(policy.ToBytes()) + ": AP is deney")
 	}
 	//check AE
 	if attrs.Timestamp > policy.AE.EndTime {
@@ -64,8 +66,12 @@ func (cc *ChainCode) CheckAccess(APIstub shim.ChaincodeStubInterface, args []str
 		return shim.Error("AE is timeout")
 	}
 	//get URL
-	// ub, _ := APIstub.GetState(attrs.DeviceId)
-	return shim.Success(m.OK)
+	resp = APIstub.InvokeChaincode("dc", [][]byte{[]byte("GetURL"), []byte(attrs.DeviceId)}, "iot-channel")
+	res, err := m.NewResource(resp.GetPayload())
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	return shim.Success([]byte(res.URL))
 }
 
 /*

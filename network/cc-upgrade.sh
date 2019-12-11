@@ -3,4 +3,4 @@
 # Exit on first error
 set -e
 
-./cc.sh upgrade AC 1.6 go/ac Synchro
+./cc.sh upgrade ac 1.2 go/ac Synchro

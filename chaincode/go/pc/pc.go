@@ -49,6 +49,8 @@ func (cc *ChainCode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 		return cc.QueryPolicy(APIstub, args)
 	} else if function == "DeletePolicy" {
 		return cc.DeletePolicy(APIstub, args)
+	} else if function == "UpdatePolicy" {
+		return cc.UpdatePolicy(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -127,7 +129,7 @@ func (cc *ChainCode) DeletePolicy(APIstub shim.ChaincodeStubInterface, args []st
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	return shim.Success(nil)
+	return shim.Success(m.OK)
 }
 
 func (cc *ChainCode) Synchro() sc.Response {
