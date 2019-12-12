@@ -6,7 +6,7 @@ var app = express()
 const { invoke } = require("./invoke")
 
 // respond with "hello world" when a GET request is made to the homepage
-app.get('/', async function (req, res) {
+app.get('/fabric-iot/test', async function (req, res) {
     const cc_name = req.query.cc_name;
     const f_name = req.query.f_name;
     const args = req.query.args;
