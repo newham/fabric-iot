@@ -10,7 +10,7 @@ app.get('/fabric-iot/test', async function (req, res) {
     const cc_name = req.query.cc_name;
     const f_name = req.query.f_name;
     const args = req.query.args;
-    console.log("invoke",cc_name,f_name,args);
+    // console.log("invoke",cc_name,f_name,args);
     if (cc_name == undefined || f_name == undefined || args == undefined) {
         res.status(400).send({ status: 400, msg: 'bad params' });
         return

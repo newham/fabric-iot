@@ -8,3 +8,4 @@ connection-*
 *.block
 .DS_Store
 wallet/
+log.*
