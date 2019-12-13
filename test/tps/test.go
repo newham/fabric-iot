@@ -13,29 +13,40 @@ import (
 )
 
 func main() {
-	n := GetCount()
+	ccName, fName, n := GetArgs()
 	if n == -1 {
+		println("please input client count")
 		return
 	}
 	start := time.Now().Unix()
 	// start := time.Now().UnixNano()
-	Loop(1, n, TestDCTask)
+	if ccName == "dc" {
+		if fName == "AddURL" {
+			Loop(1, n, TestDCAddURL)
+		} else if fName == "GetURL" {
+			Loop(1, n, TestDCGetURL)
+		}
+	} else {
+		println("please input [cc_name] [f_name] [n]")
+	}
+
 	end := time.Now().Unix()
 	println("cost time:", end-start, "second") //(end-start)/int64(time.Millisecond)
 }
 
-func GetCount() int {
+func GetArgs() (string, string, int) {
 	args := os.Args
-	n := -1
-	if len(args) > 1 {
-		m, err := strconv.Atoi(args[1])
+	if len(args) > 3 {
+		cc_name := args[1]
+		f_name := args[2]
+		n, err := strconv.Atoi(args[3])
 		if err != nil {
 			println("bad count")
-			return -1
+			return "", "", -1
 		}
-		n = m
+		return cc_name, f_name, n
 	}
-	return n
+	return "", "", -1
 }
 
 func Loop(loop int, n int, f func(c chan int, n int)) {
@@ -51,7 +62,25 @@ func Loop(loop int, n int, f func(c chan int, n int)) {
 	}
 }
 
-func TestDCTask(c chan int, n int) {
+func TestDCGetURL(c chan int, n int) {
+	i := 0
+	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
+		url := d.String()
+		_, err := http.Get(url)
+		if err != nil {
+			log.Println("Error", err.Error())
+			return
+		}
+		// println(resp.Status)
+
+	}, func() hamtask.Data {
+		i++
+		return hamtask.String(GetURL("http://localhost:8001/fabric-iot/test", "dc", "GetURL", strconv.Itoa(i)))
+	}, n).Start()
+	c <- 1
+}
+
+func TestDCAddURL(c chan int, n int) {
 	i := 0
 	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
 		url := d.String()

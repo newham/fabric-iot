@@ -55,6 +55,9 @@ func NewMQTTCli(host string) *MQTTCli {
 	return mc
 }
 
+func (mc *MQTTCli) ID() string {
+	return mc.id
+}
 func (mc *MQTTCli) Pub(topic string, msg interface{}) {
 	// //log.Println("pub:", topic, msg)
 	token := mc.c.Publish(topic, 1, false, msg)

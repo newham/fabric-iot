@@ -7,7 +7,7 @@ import (
 )
 
 func TestKafka(t *testing.T) {
-	for j := 5; j <= 100; j += 5 {
+	for j := 10; j <= 500; j += 20 {
 		start := time.Now().UnixNano()
 		Kafka(j)
 		end := time.Now().UnixNano()
