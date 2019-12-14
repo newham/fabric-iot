@@ -57,7 +57,7 @@ async function invoke(ccName, fName, args) {
         // Evaluate the specified transaction.
         // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
         // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-        console.log(ccName, fName, ...args)
+        // console.log(ccName, fName, ...args)
         switch (fName) {
             case "AddURL":
             case "AddPolicy":
@@ -65,12 +65,12 @@ async function invoke(ccName, fName, args) {
             case "UpdatePolicy":
             case "CheckAccess":
                 const r1 = await contract.submitTransaction(fName, ...args);
-                console.log(`Transaction has been submit, result is: ${r1.toString()}`);
+                // console.log(`Transaction has been submit, result is: ${r1.toString()}`);
                 return resp(200, r1.toString())
                 break;
             default:
                 const r2 = await contract.evaluateTransaction(fName, ...args);
-                console.log(`Transaction has been evaluated, result is: ${r2.toString()}`);
+                // console.log(`Transaction has been evaluated, result is: ${r2.toString()}`);
                 return resp(200, r2.toString())
                 break;
         }

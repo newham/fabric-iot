@@ -10,12 +10,12 @@ import (
 )
 
 func TestPoW(t *testing.T) {
-	nBit := 5
+	nBit := 16
 	for j := 5; j <= 100; j += 5 {
 		start := time.Now().UnixNano()
 		PoW(j, nBit)
 		end := time.Now().UnixNano()
-		fmt.Printf("%-4d%.2f\n", j, float32(end-start)/1e6)
+		fmt.Printf("%.2f\n", float32(end-start)/1e6)
 	}
 }
 

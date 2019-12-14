@@ -40,6 +40,10 @@ func main() {
 		} else if fName == "UpdatePolicy" {
 			Loop(1, n, TestPCUpdatePolicy)
 		}
+	} else if ccName == "ac" {
+		if fName == "CheckAccess" {
+			Loop(1, n, TestACCheckAccess)
+		}
 	} else {
 		println("please input [cc_name] [f_name] [n]")
 	}
@@ -77,45 +81,25 @@ func Loop(loop int, n int, f func(c chan int, n int)) {
 }
 
 func TestPCAddPolicy(c chan int, n int) {
-	i := 0
-	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
-		url := d.String()
-		_, err := http.Get(url)
-		if err != nil {
-			log.Println("Error", err.Error())
-			return
-		}
-		// println(resp.Status)
-
-	}, func() hamtask.Data {
-		i++
-		return hamtask.String(GetURL("pc", "AddPolicy", GetPolicyReq(i)))
-	}, n).Start()
-	c <- 1
+	TestCC(c, n, func(i int) string {
+		return GetURL("pc", "AddPolicy", GetPolicyReq(i, 1, 1, 1))
+	})
 }
 
-func GetPolicyReq(i int) string {
+func GetPolicyReq(i, r, g, AP int) string {
 	now := time.Now().Unix()
-	policyStr := fmt.Sprintf(`{"AS":{"userId":"%s","role":"u1","group":"g1"},"AO":{"deviceId":"%s","MAC":"%s"},"AP":1,"AE":{"createdTime":%d,"endTime":%d,"allowedIP":"*.*.*.*"}}`, GetUserID(i), GetDeviceID(i), RandomMac(), now, now+100000)
+	policyStr := fmt.Sprintf(`{"AS":{"userId":"%s","role":"u%d","group":"g%d"},"AO":{"deviceId":"%s","MAC":"%s"},"AP":%d,"AE":{"createdTime":%d,"endTime":%d,"allowedIP":"*.*.*.*"}}`, GetUserID(i), r, g, GetDeviceID(i), RandomMac(), AP, now, now+100000)
 	return policyStr
 }
 
 func TestPCQueryPolicy(c chan int, n int) {
-	i := 0
-	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
-		url := d.String()
-		_, err := http.Get(url)
-		if err != nil {
-			log.Println("Error", err.Error())
-			return
-		}
-		// println(resp.Status)
+	TestCC(c, n, func(i int) string {
+		return GetURL("pc", "QueryPolicy", GetPolicyID(i))
+	})
+}
 
-	}, func() hamtask.Data {
-		i++
-		return hamtask.String(GetURL("pc", "QueryPolicy", GetSHA256(GetUserID(i), GetDeviceID(i))))
-	}, n).Start()
-	c <- 1
+func GetPolicyID(i int) string {
+	return GetSHA256(GetUserID(i), GetDeviceID(i))
 }
 
 func GetSHA256(args ...string) string {
@@ -123,24 +107,15 @@ func GetSHA256(args ...string) string {
 }
 
 func TestPCDeletePolicy(c chan int, n int) {
-	i := 0
-	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
-		url := d.String()
-		_, err := http.Get(url)
-		if err != nil {
-			log.Println("Error", err.Error())
-			return
-		}
-		// println(resp.Status)
-
-	}, func() hamtask.Data {
-		i++
-		return hamtask.String(GetURL("pc", "QueryPolicy", GetSHA256(GetUserID(i), GetDeviceID(i))))
-	}, n).Start()
-	c <- 1
+	TestCC(c, n, func(i int) string {
+		return GetURL("pc", "DeletePolicy", GetPolicyID(i))
+	})
 }
 
 func TestPCUpdatePolicy(c chan int, n int) {
+	TestCC(c, n, func(i int) string {
+		return GetURL("pc", "UpdatePolicy", GetPolicyReq(i, 1, 1, 0))
+	})
 }
 
 func TestACCheckAccess(c chan int, n int) {
