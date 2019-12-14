@@ -15,7 +15,7 @@ app.get('/fabric-iot/test', async function (req, res) {
         res.status(400).send({ status: 400, msg: 'bad params' });
         return
     }
-    const r = await invoke(cc_name, f_name, args.split(","));
+    const r = await invoke(cc_name, f_name, args.split("|"));
     res.status(r.status).send(r);
 })
 

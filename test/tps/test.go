@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"log"
 	"math/rand"
@@ -12,6 +13,8 @@ import (
 
 	"github.com/newham/hamtask"
 )
+
+var BASE_URL = "http://localhost:8001/fabric-iot/test"
 
 func main() {
 	ccName, fName, n := GetArgs()
@@ -30,8 +33,8 @@ func main() {
 	} else if ccName == "pc" {
 		if fName == "AddPolicy" {
 			Loop(1, n, TestPCAddPolicy)
-		} else if fName == "GetPolicy" {
-			Loop(1, n, TestPCGetPolicy)
+		} else if fName == "QueryPolicy" {
+			Loop(1, n, TestPCQueryPolicy)
 		} else if fName == "DeletePolicy" {
 			Loop(1, n, TestPCDeletePolicy)
 		} else if fName == "UpdatePolicy" {
@@ -86,23 +89,18 @@ func TestPCAddPolicy(c chan int, n int) {
 
 	}, func() hamtask.Data {
 		i++
-		now := time.Now().Unix()
-		policyStr := fmt.Sprintf(`{"AS":{"userId":"%s","role":"u1","group":"g1"},"AO":{"deviceId":"%s","MAC":"%s"},"AP":1,"AE":{"createdTime":%d,"endTime":%d,"allowedIP":"*.*.*.*"}}`, GetUserID(i), GetDeviceID(i), RandomMac(), now, now+100000)
-		return hamtask.String(GetURL("http://localhost:8001/fabric-iot/test", "pc", "AddPolicy", policyStr))
+		return hamtask.String(GetURL("pc", "AddPolicy", GetPolicyReq(i)))
 	}, n).Start()
 	c <- 1
 }
 
-func TestPCGetPolicy(c chan int, n int) {
+func GetPolicyReq(i int) string {
+	now := time.Now().Unix()
+	policyStr := fmt.Sprintf(`{"AS":{"userId":"%s","role":"u1","group":"g1"},"AO":{"deviceId":"%s","MAC":"%s"},"AP":1,"AE":{"createdTime":%d,"endTime":%d,"allowedIP":"*.*.*.*"}}`, GetUserID(i), GetDeviceID(i), RandomMac(), now, now+100000)
+	return policyStr
 }
 
-func TestPCDeletePolicy(c chan int, n int) {
-}
-
-func TestPCUpdatePolicy(c chan int, n int) {
-}
-
-func TestDCGetURL(c chan int, n int) {
+func TestPCQueryPolicy(c chan int, n int) {
 	i := 0
 	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
 		url := d.String()
@@ -115,9 +113,59 @@ func TestDCGetURL(c chan int, n int) {
 
 	}, func() hamtask.Data {
 		i++
-		return hamtask.String(GetURL("http://localhost:8001/fabric-iot/test", "dc", "GetURL", GetDeviceID(i)))
+		return hamtask.String(GetURL("pc", "QueryPolicy", GetSHA256(GetUserID(i), GetDeviceID(i))))
 	}, n).Start()
 	c <- 1
+}
+
+func GetSHA256(args ...string) string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(strings.Join(args, ""))))
+}
+
+func TestPCDeletePolicy(c chan int, n int) {
+	i := 0
+	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
+		url := d.String()
+		_, err := http.Get(url)
+		if err != nil {
+			log.Println("Error", err.Error())
+			return
+		}
+		// println(resp.Status)
+
+	}, func() hamtask.Data {
+		i++
+		return hamtask.String(GetURL("pc", "QueryPolicy", GetSHA256(GetUserID(i), GetDeviceID(i))))
+	}, n).Start()
+	c <- 1
+}
+
+func TestPCUpdatePolicy(c chan int, n int) {
+}
+
+func TestACCheckAccess(c chan int, n int) {
+	i := 0
+	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
+		url := d.String()
+		_, err := http.Get(url)
+		if err != nil {
+			log.Println("Error", err.Error())
+			return
+		}
+		// println(resp.Status)
+
+	}, func() hamtask.Data {
+		i++
+		return hamtask.String(GetURL("ac", "CheckAccess", GetACRequest(i)))
+	}, n).Start()
+	c <- 1
+}
+
+func TestDCGetURL(c chan int, n int) {
+
+	TestCC(c, n, func(i int) string {
+		return GetURL("dc", "GetURL", GetDeviceID(i))
+	})
 }
 
 func TestDCAddURL(c chan int, n int) {
@@ -133,9 +181,31 @@ func TestDCAddURL(c chan int, n int) {
 
 	}, func() hamtask.Data {
 		i++
-		return hamtask.String(GetURL("http://localhost:8001/fabric-iot/test", "dc", "AddURL", GetDeviceID(i), "https://test"+GetDeviceID(i)+".res"))
+		return hamtask.String(GetURL("dc", "AddURL", GetDeviceID(i), "https://test"+GetDeviceID(i)+".res"))
 	}, n).Start()
 	c <- 1
+}
+
+func TestCC(c chan int, n int, f func(int) string) {
+	i := 0
+	hamtask.NewSimpleWorker(n, func(i int, d hamtask.Data) {
+		url := d.String()
+		_, err := http.Get(url)
+		if err != nil {
+			log.Println("Error", err.Error())
+			return
+		}
+		// println(resp.Status)
+
+	}, func() hamtask.Data {
+		i++
+		return hamtask.String(f(i))
+	}, n).Start()
+	c <- 1
+}
+
+func GetACRequest(i int) string {
+	return fmt.Sprintf(`{"AS":{"userId":"%s","role":"u1","group":"g1"},"AO":{"deviceId":"%s","MAC":"00:11:22:33:44:55"}}`, GetUserID(i), GetDeviceID(i))
 }
 
 func GetID(i int) int {
@@ -150,8 +220,8 @@ func GetDeviceID(i int) string {
 	return fmt.Sprintf("D%d", GetID(i))
 }
 
-func GetURL(url, cc_name, f_name string, args ...string) string {
-	return fmt.Sprintf("%s?cc_name=%s&f_name=%s&args=[%s]", url, cc_name, f_name, strings.Join(args, ","))
+func GetURL(cc_name, f_name string, args ...string) string {
+	return fmt.Sprintf("%s?cc_name=%s&f_name=%s&args=%s", BASE_URL, cc_name, f_name, strings.Join(args, "|"))
 }
 
 func RandomX(N, n int) string {
