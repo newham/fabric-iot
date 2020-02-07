@@ -20,6 +20,7 @@ docker|>=19
 docker-compose|>=1.24
 node|>=12
 golang|>=1.10
+Hyperledger Fabric|>=1.4
 
 ### 0.3.Download src
 ```go

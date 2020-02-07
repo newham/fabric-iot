@@ -2,7 +2,7 @@
 [English](/README.en.md)  
 > **WHAT WE HAVE**:  
 > 1.采用ABAC作为权限控制方法，用golang实现了chaincode.  
-> 2.编写了完整地脚本，轻松启动Hyperledger Fabric网络.  
+> 2.编写了完整的脚本，轻松启动fabric-iot网络.  
 > 3.详细的步骤说明，浅显易懂.    
 
 ## 0.准备工作
@@ -20,6 +20,7 @@ docker|>=19
 docker-compose|>=1.24
 node|>=12
 golang|>=1.10
+Hyperledger Fabric|>=1.4
 
 ### 0.3.下载本软件
 ```go
