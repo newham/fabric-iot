@@ -22,6 +22,8 @@ node|>=12
 golang|>=1.10
 Hyperledger Fabric|>=1.4
 
+***请将Hyperledger Fabric、golang、node的\bin加入PATH**
+
 ### 0.3.下载本软件
 ```go
 go get github.com/newham/fabric-iot
