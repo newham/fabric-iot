@@ -46,7 +46,7 @@ go get github.com/newham/fabric-iot
 ```
 export PATH
 ```bash
-export $(pwd)/fabric-samples/bin
+export PATH=$PATH:$(pwd)/fabric-samples/bin
 ```
 ***之后的诸如【启动网络、安装链码等操作需要先export PATH，这是让系统知道Hyperledger Fabric的bin目录】**  
 
