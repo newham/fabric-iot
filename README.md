@@ -20,14 +20,37 @@ docker|>=19
 docker-compose|>=1.24
 node|>=12
 golang|>=1.10
-Hyperledger Fabric|>=1.4
+Hyperledger Fabric|=1.4.*
 
-***请将Hyperledger Fabric、golang、node的\bin加入PATH**
+***请将golang、node的\bin加入PATH**
+
+***本次实验基于Fabric 1.4.3，默认下载的Fabric版本是1.4.3**
+
+***如果需要修改版本，请更改 `bootstrap.sh`**
+```
+VERSION=1.4.3
+
+CA_VERSION=1.4.3
+```
+
 
 ### 0.3.下载本软件
 ```go
 go get github.com/newham/fabric-iot
 ```
+
+### 0.4.下载并配置Hyperledger Fabric
+下载源码和bin  
+```bash
+./bootstrap.sh
+```
+export PATH
+```bash
+export $(pwd)/fabric-samples/bin
+```
+***之后的诸如【启动网络、安装链码等操作需要先export PATH，这是让系统知道Hyperledger Fabric的bin目录】**  
+
+***也可将其加入path中**
 
 ## 1.目录结构
 
@@ -72,16 +95,15 @@ cd network
 ```shell
 ./cc-install.sh
 ```
-### 2.4.更新链码
+### *2.4.更新链码（次步骤在修改了chain code代码后再执行）
 ```shell
 ./cc-upgrade.sh [new version]
 ```
-*chaincode被保存在`/chaincode/go`目录中，目前只用golang实现
-### 2.5.关闭网络
+*chaincode被保存在`/chaincode/go`目录中，目前只用`golang`实现  
+### *2.5.关闭网络（*每次关闭网络会删除所有docker容器和镜像，请谨慎操作）
 ```shell
 ./down.sh
 ```
-*每次关闭网络会删除所有docker容器和镜像，请谨慎操作
 
 ## 3.与区块链交互
 ### 3.1.初始化代码
@@ -110,4 +132,4 @@ node ./invoke.js [chaincode_name] [function_name] [args]
 
 <br>
 <br>
-©2019 liuhan[liuhanshmtu@163.com] all rights reserved.
+©2019 <a href="mailto:liuhanshmtu@163.com">liuhanshmtu@163.com</a> all rights reserved.

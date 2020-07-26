@@ -22,5 +22,5 @@ if [ ! -n "$imgs" ] ;then
     echo "no imgs"
 else
     # 删除镜像
-    docker rmi $imgs
+    docker rmi -f $imgs
 fi

@@ -9,3 +9,4 @@ connection-*
 .DS_Store
 wallet/
 log.*
+/fabric-samples
