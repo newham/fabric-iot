@@ -6,6 +6,10 @@
 > 3.详细的步骤说明，浅显易懂.    
 
 ## 0.准备工作
+### 0.0.官网
+[ github : hyperledger-fabric](https://github.com/hyperledger/fabric)  
+[ doc 1.4 ](https://hyperledger-fabric.readthedocs.io/en/release-1.4/)
+
 ### 0.1.操作系统
 OS|版本
 -|-
@@ -95,16 +99,16 @@ cd network
 ```shell
 ./cc-install.sh
 ```
-### *2.4.更新链码（次步骤在修改了chain code代码后再执行）
+### *2.4.更新链码（本步骤在修改了chain code代码后再执行，[new version]要大于上一个版本）
 ```shell
 ./cc-upgrade.sh [new version]
 ```
 *chaincode被保存在`/chaincode/go`目录中，目前只用`golang`实现  
-### *2.5.关闭网络（*每次关闭网络会删除所有docker容器和镜像，请谨慎操作）
+### *2.5.关闭网络
 ```shell
 ./down.sh
 ```
-
+*每次关闭网络会删除所有docker容器和镜像，请谨慎操作
 ## 3.与区块链交互
 ### 3.1.初始化代码
 进入客户端代码目录  
