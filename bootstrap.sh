@@ -105,7 +105,7 @@ pullDockerImages() {
     command -v docker >& /dev/null
     NODOCKER=$?
     if [ "${NODOCKER}" == 0 ]; then
-        FABRIC_IMAGES=(peer orderer ccenv tools)
+        FABRIC_IMAGES=(peer orderer ccenv tools couchdb) # couchdb added by liuhan 
         case "$VERSION" in
         2.*)
             FABRIC_IMAGES+=(baseos)
@@ -185,6 +185,11 @@ if [ "$BINARIES" == "true" ]; then
     echo "Pull Hyperledger Fabric binaries"
     echo
     pullBinaries
+#     by liuhan
+    echo
+    echo "Set Fabric binaries to PATH"
+    echo
+    export PATH=$PATH:$(pwd)/fabric-samples/bin
 fi
 if [ "$DOCKER" == "true" ]; then
     echo
