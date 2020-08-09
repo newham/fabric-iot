@@ -4,9 +4,6 @@
 export VERBOSE=false
 export FABRIC_CFG_PATH=${PWD}
 
-# default consensus type
-CONSENSUS_TYPE="solo"
-
 # Generates Org certs using cryptogen tool
 function generateCerts() {
   which cryptogen

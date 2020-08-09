@@ -38,3 +38,5 @@ export IMAGE_TAG=$IMAGE_TAG
 export SYS_CHANNEL=$SYS_CHANNEL
 # conn conf
 CONN_CONF_PATH=conn-conf
+# default consensus type,[kafka,solo,etcdraft]
+CONSENSUS_TYPE="kafka"
