@@ -71,14 +71,6 @@ Vagrant.configure("2") do |config|
 
   # 创建3个虚拟机节点
 
-  # 用于远程登录
-  # 不使用ssh
-  config.ssh.insert_key = false
-  # 设置username和password
-  config.ssh.username = "liuhan"
-  config.ssh.password = "123"
-
-
   # 1个order节点
   config.vm.define :order do |order|
     # 名称和配置设定
