@@ -10,3 +10,5 @@ connection-*
 wallet/
 log.*
 /fabric-samples
+.vagrant/
+*.log
