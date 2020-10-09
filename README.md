@@ -9,6 +9,7 @@
 ### 0.0.官网
 [ github : hyperledger-fabric](https://github.com/hyperledger/fabric)  
 [ doc 1.4 ](https://hyperledger-fabric.readthedocs.io/en/release-1.4/)
+[ node-sdk 1.4 ](https://hyperledger.github.io/fabric-sdk-node/release-1.4/module-fabric-network.html)
 
 ### 0.1.操作系统
 OS|版本
