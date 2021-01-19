@@ -97,7 +97,13 @@ func (cc *ChainCode) QueryPolicy(APIstub shim.ChaincodeStubInterface, args []str
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of argumentcc. Expecting 1")
 	}
-	policyAsBytes, _ := APIstub.GetState(args[0])
+	policyAsBytes, err := APIstub.GetState(args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	if policyAsBytes == nil || len(policyAsBytes) == 0 {
+		return shim.Success([]byte("policy not exist"))
+	}
 	return shim.Success(policyAsBytes)
 }
 

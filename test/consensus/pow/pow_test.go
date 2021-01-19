@@ -9,6 +9,17 @@ import (
 	"github.com/newham/goblockchain/core"
 )
 
+func TestMine(t *testing.T) {
+	difficulty := 10
+	start := time.Now().UnixNano()
+	id := strconv.FormatInt(time.Now().UnixNano(), 10)
+	nb := core.NewGenesisBlock(id, difficulty)
+	//start to pow
+	nonce, hash := core.NewProofOfWork(nb).Work()
+	end := time.Now().UnixNano()
+	fmt.Printf("difficulty=%-3d id=%s nonce=%-10d hash=%x time(s)=%.6f\n", difficulty, id, nonce, hash, float32(end-start)/1e9)
+}
+
 func TestPoW(t *testing.T) {
 	nBit := 16
 	for j := 5; j <= 100; j += 5 {

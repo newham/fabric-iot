@@ -12,6 +12,7 @@ CC_SRC_PATH=github.com/newham/fabric-iot/chaincode/go/pc
 CC_NAME=PC
 CC_VERSION=1.0
 CC_INVOKE_FUNC_NAME="Synchro"
+ARGS=''
 # client container's name
 CLI=cli
 # action
@@ -25,6 +26,7 @@ ORG2_MSPCONFIGPATH=${CONFIG_ROOT}/crypto/peerOrganizations/org2.fabric-iot.edu/u
 ORG2_TLS_ROOTCERT_FILE=${CONFIG_ROOT}/crypto/peerOrganizations/org2.fabric-iot.edu/peers/peer0.org2.fabric-iot.edu/tls/ca.crt
 ORDERER_TLS_ROOTCERT_FILE=${CONFIG_ROOT}/crypto/ordererOrganizations/fabric-iot.edu/orderers/orderer.fabric-iot.edu/msp/tlscacerts/tlsca.fabric-iot.edu-cert.pem
 
+
 if [ -n $1 -a -n $2 -a -n $3 -a -n $4 ]; then
   ACTION=$1
   CC_NAME=$2
@@ -33,11 +35,15 @@ if [ -n $1 -a -n $2 -a -n $3 -a -n $4 ]; then
   if [ ! $5 = '' ]; then
     CC_INVOKE_FUNC_NAME=$5
   fi
-  echo $ACTION ${CC_NAME}:${CC_VERSION} $CC_SRC_PATH $CC_INVOKE_FUNC_NAME
+  if [ ! $6 = '' ]; then
+    ARGS=$6
+  fi
+  echo $ACTION ${CC_NAME}:${CC_VERSION} $CC_SRC_PATH $CC_INVOKE_FUNC_NAME $ARGS
 else
   echo './cc.sh ["install"/"upgrade"] [cc name] [cc version] [cc src path] [fname]'
   exit 1
 fi
+
 
 # 1:org 2:peer 3:port 4:ORG1_MSPCONFIGPATH 5:ORG1_TLS_ROOTCERT_FILE
 function installCC() {
@@ -98,6 +104,7 @@ function process() {
 
 function invokeCC() {
   echo "Submitting transaction:${CC_INVOKE_FUNC_NAME} to smart contract on iot-channel"
+  echo 'ARGS:{"function":"'$CC_INVOKE_FUNC_NAME'","Args":['$ARGS']}'
   echo "The transaction is sent to all of the peers so that chaincode is built before receiving the following requests"
   docker exec \
     -e CORE_PEER_LOCALMSPID=Org1MSP \
@@ -107,7 +114,7 @@ function invokeCC() {
     -o orderer.fabric-iot.edu:7050 \
     -C iot-channel \
     -n "$CC_NAME" \
-    -c '{"function":"'$CC_INVOKE_FUNC_NAME'","Args":[]}' \
+    -c '{"function":"'$CC_INVOKE_FUNC_NAME'","Args":['$ARGS']}' \
     --waitForEvent \
     --tls \
     --cafile ${ORDERER_TLS_ROOTCERT_FILE} \
@@ -147,21 +154,30 @@ function upgradeCC() {
 
 # set -x
 
-# install cc
-installCC 1 0 7051
-installCC 1 1 8051
-installCC 2 0 9051
-installCC 2 1 10051
+function deployCC(){
+  # install cc
+  installCC 1 0 7051
+  installCC 1 1 8051
+  installCC 2 0 9051
+  installCC 2 1 10051
+}
+
 # init
 if [ $ACTION = 'install' ]; then
+  deployCC
   initCC
+  invokeCC # 调用 Synchro 方法，为 chaincode 背书
 elif [ $ACTION = 'upgrade' ]; then
+  deployCC
   upgradeCC
-fi
-# try
-if [ ! $CC_INVOKE_FUNC_NAME = '' ]; then
+  invokeCC # 调用 Synchro 方法，为 chaincode 背书
+elif [ $ACTION = 'invoke' ]; then
   invokeCC
 fi
+# try
+# if [ ! $CC_INVOKE_FUNC_NAME = '' ]; then
+#   invokeCC
+# fi
 
 echo "done"
 

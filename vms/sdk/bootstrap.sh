@@ -14,6 +14,8 @@ VERSION=1.4.3
 CA_VERSION=1.4.3
 ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')")
 MARCH=$(uname -m)
+BINARY_FILE=hyperledger-fabric-${ARCH}-${VERSION}.tar.gz
+CA_BINARY_FILE=hyperledger-fabric-ca-${ARCH}-${CA_VERSION}.tar.gz
 
 printHelp() {
     echo "Usage: bootstrap.sh [version [ca_version]] [options]"
@@ -26,6 +28,43 @@ printHelp() {
     echo
     echo "e.g. bootstrap.sh 2.2.0 1.4.7 -s"
     echo "will download docker images and binaries for Fabric v2.2.0 and Fabric CA v1.4.7"
+}
+
+dockerInstall(){
+    # 更新软件
+    sudo apt-get update
+    # 安装依赖工具
+    sudo apt-get install \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+
+    # SET UP THE REPOSITORY
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+
+    # INSTALL DOCKER ENGINE
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose
+
+    #将当前用户添加至docker用户组
+    sudo gpasswd -a $USER docker
+    #更新docker用户组
+    newgrp docker
+
+    #添加淘宝源
+    echo "==> 添加淘宝源"
+    # sudo echo '{ "registry-mirrors": ["https://f1z25q5p.mirror.aliyuncs.com"] }' > /etc/docker/daemon.json
+    sudo cp daemon.json /etc/docker/
+    echo "==> 重启docker以适配"
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
 }
 
 # dockerPull() pulls docker images from fabric and chaincode repositories
@@ -71,14 +110,26 @@ cloneSamplesRepo() {
 download() {
     local BINARY_FILE=$1
     local URL=$2
-    echo "===> Downloading: " "${URL}"
-    curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz || rc=$?
-    if [ -n "$rc" ]; then
-        echo "==> There was an error downloading the binary file."
-        return 22
+    
+    echo "$BINARY_FILE"
+    if [ -e "$BINARY_FILE" ]; then
+        echo "===> 文件 $BINARY_FILE 已经存在，解压: " "${URL}"
+        if [ ! -d "./hyperledger-fabric" ]; then
+            mkdir go hyperledger-fabric
+        fi
     else
-        echo "==> Done."
+        echo "===> Downloading: " "${URL}"
+        # curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz || rc=$?
+        wget ${URL} || rc=$?
+        if [ -n "$rc" ]; then
+            echo "==> There was an error downloading the binary file."
+            return 22
+        else
+            echo "==> Done."
+        fi
     fi
+    tar zxvf $BINARY_FILE -C ./hyperledger-fabric/
+    return 1
 }
 
 pullBinaries() {
@@ -105,7 +156,7 @@ pullDockerImages() {
     command -v docker >& /dev/null
     NODOCKER=$?
     if [ "${NODOCKER}" == 0 ]; then
-        FABRIC_IMAGES=(peer orderer ccenv tools couchdb) # couchdb added by liuhan 
+        FABRIC_IMAGES=(peer orderer ccenv tools) # couchdb added by liuhan 
         case "$VERSION" in
         2.*)
             FABRIC_IMAGES+=(baseos)
@@ -115,6 +166,10 @@ pullDockerImages() {
         echo "FABRIC_IMAGES:" "${FABRIC_IMAGES[@]}"
         echo "===> Pulling fabric Images"
         dockerPull "${FABRIC_TAG}" "${FABRIC_IMAGES[@]}"
+        # by liuhan 
+        FABRIC_IMAGES_OTHERS=(couchdb kafka zookeeper)
+        echo "===> Pulling fabric Images"
+        dockerPull "latest" "${FABRIC_IMAGES_OTHERS[@]}"
         echo "===> Pulling fabric ca Image"
         CA_IMAGE=(ca)
         dockerPull "${CA_TAG}" "${CA_IMAGE[@]}"
@@ -126,10 +181,6 @@ pullDockerImages() {
         echo "========================================================="
     fi
 }
-
-DOCKER=true
-SAMPLES=true
-BINARIES=true
 
 # Parse commandline args pull out
 # version and/or ca-version strings first
@@ -155,9 +206,6 @@ else
     : "${THIRDPARTY_TAG:="$THIRDPARTY_IMAGE_VERSION"}"
 fi
 
-BINARY_FILE=hyperledger-fabric-${ARCH}-${VERSION}.tar.gz
-CA_BINARY_FILE=hyperledger-fabric-ca-${ARCH}-${CA_VERSION}.tar.gz
-
 # then parse opts
 while getopts "h?dsb" opt; do
     case "$opt" in
@@ -174,6 +222,18 @@ while getopts "h?dsb" opt; do
     esac
 done
 
+# 是否执行操作
+DOCKER_INSTALL=true #安装docker
+DOCKER=true #pull镜像
+SAMPLES=false #示例代码
+BINARIES=true #bin
+
+if [ "$DOCKER_INSTALL" == "true" ]; then
+    echo
+    echo "intall docker"
+    echo
+    dockerInstall
+fi
 if [ "$SAMPLES" == "true" ]; then
     echo
     echo "Clone hyperledger/fabric-samples repo"
@@ -185,11 +245,13 @@ if [ "$BINARIES" == "true" ]; then
     echo "Pull Hyperledger Fabric binaries"
     echo
     pullBinaries
-#     by liuhan
+    # by liuhan
     echo
     echo "Set Fabric binaries to PATH"
     echo
-    export PATH=$PATH:$(pwd)/fabric-samples/bin
+    # export PATH=$PATH:$(pwd)/hyperledger-fabric/bin
+    echo "export PATH=\$PATH:$(pwd)/hyperledger-fabric/bin" >> ~/.bashrc
+    source ~/.bashrc
 fi
 if [ "$DOCKER" == "true" ]; then
     echo

@@ -4,13 +4,10 @@
 
 'use strict';
 
-const { FileSystemWallet, Gateway, X509WalletMixin, ccpPath, path } = require('./base')
+const { FileSystemWallet, Gateway, X509WalletMixin, ccpPath, path, user } = require('./base')
 
 async function main() {
     try {
-
-        const user = 'user1'
-
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = new FileSystemWallet(walletPath);
@@ -47,7 +44,7 @@ async function main() {
         console.log(`Successfully registered and enrolled admin user "${user}" and imported it into the wallet`);
 
     } catch (error) {
-        console.error(`Failed to register user "${user}": ${error}`);
+        console.error(`Failed to register user : ${error}`);
         process.exit(1);
     }
 }

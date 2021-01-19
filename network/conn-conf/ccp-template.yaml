@@ -17,7 +17,7 @@ organizations:
     - ca.org${ORG}.fabric-iot.edu
 peers:
   peer0.org${ORG}.fabric-iot.edu:
-    url: grpcs://localhost:${P0PORT}
+    url: grpcs://${P0HOST}:${P0PORT}
     tlsCACerts:
       pem: |
         ${PEERPEM}
@@ -25,7 +25,7 @@ peers:
       ssl-target-name-override: peer0.org${ORG}.fabric-iot.edu
       hostnameOverride: peer0.org${ORG}.fabric-iot.edu
   peer1.org${ORG}.fabric-iot.edu:
-    url: grpcs://localhost:${P1PORT}
+    url: grpcs://${P1HOST}:${P1PORT}
     tlsCACerts:
       pem: |
         ${PEERPEM}
@@ -34,7 +34,7 @@ peers:
       hostnameOverride: peer1.org${ORG}.fabric-iot.edu
 certificateAuthorities:
   ca.org${ORG}.fabric-iot.edu:
-    url: https://localhost:${CAPORT}
+    url: https://${CAHOST}:${CAPORT}
     caName: ca-org${ORG}
     tlsCACerts:
       pem: |

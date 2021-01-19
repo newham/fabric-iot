@@ -32,11 +32,14 @@ BLACKLISTED_VERSIONS="^1\.0\. ^1\.1\.0-preview ^1\.1\.0-alpha"
 CHANNEL_NAME="iot-channel"
 # system channem name
 SYS_CHANNEL="iot-sys-channel"
-# set exports
-export COMPOSE_PROJECT_NAME=iot
+# set exports, used by docker-compose
+export SYS_CHANNEL=iot-sys-channel
+export CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.fabric-iot.edu/ca && ls *_sk) # ca的证书位置
+export CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.fabric-iot.edu/ca && ls *_sk)
+export NETWORK=iot_cross_net # ！！！！这个网络需要提前设置为swarm网络
+export COMPOSE_PROJECT_NAME=iot # 这个参数可以忽略
 export IMAGE_TAG=$IMAGE_TAG
-export SYS_CHANNEL=$SYS_CHANNEL
 # conn conf
 CONN_CONF_PATH=conn-conf
 # default consensus type,[kafka,solo,etcdraft]
-CONSENSUS_TYPE="kafka"
+CONSENSUS_TYPE="solo"

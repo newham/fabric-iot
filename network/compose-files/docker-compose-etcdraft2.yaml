@@ -1,0 +1,77 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer2.fabric-iot.edu:
+  orderer3.fabric-iot.edu:
+  orderer4.fabric-iot.edu:
+  orderer5.fabric-iot.edu:
+
+networks:
+  byfn:
+
+services:
+
+  orderer2.fabric-iot.edu:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer2.fabric-iot.edu
+    networks:
+    - byfn
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer2.fabric-iot.edu/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer2.fabric-iot.edu/tls/:/var/hyperledger/orderer/tls
+        - orderer2.fabric-iot.edu:/var/hyperledger/production/orderer
+    ports:
+    - 8050:7050
+
+  orderer3.fabric-iot.edu:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer3.fabric-iot.edu
+    networks:
+    - byfn
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer3.fabric-iot.edu/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer3.fabric-iot.edu/tls/:/var/hyperledger/orderer/tls
+        - orderer3.fabric-iot.edu:/var/hyperledger/production/orderer
+    ports:
+    - 9050:7050
+
+  orderer4.fabric-iot.edu:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer4.fabric-iot.edu
+    networks:
+    - byfn
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.fabric-iot.edu/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.fabric-iot.edu/tls/:/var/hyperledger/orderer/tls
+        - orderer4.fabric-iot.edu:/var/hyperledger/production/orderer
+    ports:
+    - 10050:7050
+
+  orderer5.fabric-iot.edu:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer5.fabric-iot.edu
+    networks:
+    - byfn
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer5.fabric-iot.edu/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/example.com/orderers/orderer5.fabric-iot.edu/tls/:/var/hyperledger/orderer/tls
+        - orderer5.fabric-iot.edu:/var/hyperledger/production/orderer
+    ports:
+    - 11050:7050

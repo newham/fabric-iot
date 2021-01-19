@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { ccpPath, path, FileSystemWallet, Gateway, CHANNEL_NAME } = require("./base")
+const { ccpPath, path, FileSystemWallet, Gateway, CHANNEL_NAME, user } = require("./base")
 
 function resp(status, msg) {
     return { status: status, msg: msg }
@@ -42,7 +42,6 @@ async function invoke(ccName, fName, args) {
         }
 
         // Check to see if we've already enrolled the user.
-        const user = 'user1'
         const userExists = await wallet.exists(user);
         if (!userExists) {
             if (isCMD) {
@@ -54,7 +53,8 @@ async function invoke(ccName, fName, args) {
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccpPath, { wallet, identity: user, discovery: { enabled: true, asLocalhost: true } });
+        // * !!! 这里如果访问不是本地的node，需要修改 asLocalhost: false ; 同时还要修改宿主机的HOST 
+        await gateway.connect(ccpPath, { wallet, identity: user, discovery: { enabled: true, asLocalhost: false } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork(CHANNEL_NAME);
@@ -72,6 +72,7 @@ async function invoke(ccName, fName, args) {
             case "AddURL":
             case "GetURL":
             case "AddPolicy":
+            case "QueryPolicy":
             case "DeletePolicy":
             case "UpdatePolicy":
             case "CheckAccess":

@@ -7,6 +7,8 @@ version: '2'
 
 networks:
   bc_net:
+    external:
+      name: $NETWORK
 
 services:
   couchdb0:

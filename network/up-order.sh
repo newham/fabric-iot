@@ -3,12 +3,17 @@
 # import env
 . env.sh
 
+# COMPOSE_FILES
+COMPOSE_FILE="$COMPOSE_FILE_PATH/docker-compose-order.yaml"
+echo "$COMPOSE_FILE"
+
 # settings
 CERTIFICATE_AUTHORITIES="true"
 # not install chaincode
 NO_CHAINCODE="true"
 # use couchdb
-IF_COUCHDB="couchdb"
+# IF_COUCHDB="couchdb"
+IF_COUCHDB="none"
 
 # Do some basic sanity checking to make sure that the appropriate versions of fabric
 # binaries/images are available.  In the future, additional checking for the presence
@@ -54,9 +59,8 @@ function networkUp() {
   COMPOSE_FILES="-f ${COMPOSE_FILE}"
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-    # 已经在.env中导出
-    # export CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.fabric-iot.edu/ca && ls *_sk)
-    # export CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.fabric-iot.edu/ca && ls *_sk)
+    export CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.fabric-iot.edu/ca && ls *_sk)
+    export CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.fabric-iot.edu/ca && ls *_sk)
   fi
   if [ "${CONSENSUS_TYPE}" == "kafka" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_KAFKA}"
@@ -66,6 +70,10 @@ function networkUp() {
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
   fi
+  echo
+  echo 'COMPOSE_FILES:'
+  echo ${COMPOSE_FILES} 
+  echo
   IMAGE_TAG=$IMAGETAG docker-compose ${COMPOSE_FILES} up -d 2>&1
   docker ps -a
   if [ $? -ne 0 ]; then
@@ -86,10 +94,14 @@ function networkUp() {
   fi
 }
 
-function chaincodeUp(){
-    DOCKER_IMAGE_IDS=$(docker ps -a | awk '($2 ~ /dev-peer*.*.*.*c.*/) {print $1}')
-    docker restart $DOCKER_IMAGE_IDS
+function runScript() {
+  # now run the end to end script
+  docker exec cli scripts/script.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!!! Test failed"
+    exit 1
+  fi
 }
 
 networkUp
-chaincodeUp
+# runScript

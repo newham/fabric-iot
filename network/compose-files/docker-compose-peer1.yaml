@@ -1,0 +1,96 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  # orderer.fabric-iot.edu:
+  peer0.org1.fabric-iot.edu:
+  peer1.org1.fabric-iot.edu:
+  peer0.org2.fabric-iot.edu:
+  peer1.org2.fabric-iot.edu:
+
+networks:
+  bc_net:
+    external:
+      name: $NETWORK
+
+services:
+
+  # orderer.fabric-iot.edu:
+  #   extends:
+  #     file:   base/docker-compose-base.yaml
+  #     service: orderer.fabric-iot.edu
+  #   container_name: orderer.fabric-iot.edu
+  #   networks:
+  #     - bc_net
+
+  peer0.org1.fabric-iot.edu:
+    container_name: peer0.org1.fabric-iot.edu
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org1.fabric-iot.edu
+    networks:
+      - bc_net
+
+  peer1.org1.fabric-iot.edu:
+    container_name: peer1.org1.fabric-iot.edu
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.org1.fabric-iot.edu
+    networks:
+      - bc_net
+
+  peer0.org2.fabric-iot.edu:
+    container_name: peer0.org2.fabric-iot.edu
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org2.fabric-iot.edu
+    networks:
+      - bc_net
+
+  peer1.org2.fabric-iot.edu:
+    container_name: peer1.org2.fabric-iot.edu
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.org2.fabric-iot.edu
+    networks:
+      - bc_net
+
+  # cli:
+  #   container_name: cli
+  #   image: hyperledger/fabric-tools:$IMAGE_TAG
+  #   tty: true
+  #   stdin_open: true
+  #   environment:
+  #     - SYS_CHANNEL=$SYS_CHANNEL
+  #     - GOPATH=/opt/gopath
+  #     - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+  #     #- FABRIC_LOGGING_SPEC=DEBUG
+  #     - FABRIC_LOGGING_SPEC=INFO
+  #     - CORE_PEER_ID=cli
+  #     - CORE_PEER_ADDRESS=peer0.org1.fabric-iot.edu:7051
+  #     - CORE_PEER_LOCALMSPID=Org1MSP
+  #     - CORE_PEER_TLS_ENABLED=true
+  #     - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-iot.edu/peers/peer0.org1.fabric-iot.edu/tls/server.crt
+  #     - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-iot.edu/peers/peer0.org1.fabric-iot.edu/tls/server.key
+  #     - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-iot.edu/peers/peer0.org1.fabric-iot.edu/tls/ca.crt
+  #     - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-iot.edu/users/Admin@org1.fabric-iot.edu/msp
+  #   working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+  #   command: /bin/bash
+  #   volumes:
+  #       - /var/run/:/host/var/run/
+  #       - ./../../chaincode/:/opt/gopath/src/github.com/newham/fabric-iot/chaincode
+  #       - ./../crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+  #       - ./../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+  #       - ./../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+  #   depends_on:
+  #     - orderer.fabric-iot.edu
+  #     # - peer0.org1.fabric-iot.edu
+  #     # - peer1.org1.fabric-iot.edu
+  #     # - peer0.org2.fabric-iot.edu
+  #     # - peer1.org2.fabric-iot.edu
+  #   networks:
+  #     - bc_net

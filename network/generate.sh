@@ -4,6 +4,12 @@
 export VERBOSE=false
 export FABRIC_CFG_PATH=${PWD}
 
+# 检查输出目录是否存在，不存在创建
+if [ ! -d "./channel-artifacts" ];then
+echo 'mkdir ./channel-artifacts'
+mkdir ./channel-artifacts
+fi
+
 # Generates Org certs using cryptogen tool
 function generateCerts() {
   which cryptogen
@@ -43,7 +49,7 @@ function replacePrivateKey() {
   fi
 
   # Copy the template to the file that will be modified to add the private key
-  cp $CONN_CONF_PATH/docker-compose-e2e-template.yaml $CONN_CONF_PATH/docker-compose-e2e.yaml
+  cp $COMPOSE_FILE_PATH/docker-compose-e2e-template.yaml $COMPOSE_FILE_PATH/docker-compose-e2e.yaml
 
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the two CAs.
@@ -51,14 +57,14 @@ function replacePrivateKey() {
   cd crypto-config/peerOrganizations/org1.fabric-iot.edu/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
-  sed $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" $CONN_CONF_PATH/docker-compose-e2e.yaml
+  sed $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" $COMPOSE_FILE_PATH/docker-compose-e2e.yaml
   cd crypto-config/peerOrganizations/org2.fabric-iot.edu/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
-  sed $OPTS "s/CA2_PRIVATE_KEY/${PRIV_KEY}/g" $CONN_CONF_PATH/docker-compose-e2e.yaml
+  sed $OPTS "s/CA2_PRIVATE_KEY/${PRIV_KEY}/g" $COMPOSE_FILE_PATH/docker-compose-e2e.yaml
   # If MacOSX, remove the temporary backup of the docker-compose file
   if [ "$ARCH" == "Darwin" ]; then
-    rm $CONN_CONF_PATH/docker-compose-e2e.yamlt
+    rm $COMPOSE_FILE_PATH/docker-compose-e2e.yamlt
   fi
 }
 
