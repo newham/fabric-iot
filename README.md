@@ -81,7 +81,7 @@ export PATH=$PATH:$(pwd)/fabric-samples/bin
 |--install-cc.sh......................................安装链码shell脚本  
 |--rm-cc.sh...........................................删除链码shell脚本  
 |--up.sh................................................启动网络shell脚本  
-## 2.搭建网络
+## 2.搭建网络 [分布式版本](https://github.com/newham/fabric-iot/tree/distributed)
 ### 2.1.生成证书、配置文件等
 进入目录  
 ```shell
