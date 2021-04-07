@@ -111,9 +111,26 @@ cd network
 ```
 *每次关闭网络会删除所有docker容器和镜像，请谨慎操作
 ## 3.与区块链交互
-### 3.1.初始化代码
+
+## 3.1.使用shell脚本调用链码 
+进入shell脚本目录
+```bash
+cd network
+```
+调用链码(示例代码在`cc-test.sh`)
+```bash
+# invoke
+# shell|action|cc_name|cc_version|cc_src|fname|args
+# add policy
+./cc.sh invoke pc 1.0 go/pc AddPolicy '"{\"AS\":{\"userId\":\"13800010001\",\"role\":\"u1\",\"group\":\"g1\"},\"AO\":{\"deviceId\":\"D100010001\",\"MAC\":\"00:11:22:33:44:55\"}}"'
+# query policy
+./cc.sh invoke pc 1.0 go/pc QueryPolicy '"40db810e4ccb4cc1f3d5bc5803fb61e863cf05ea7fc2f63165599ef53adf5623"'
+```
+## 3.2.使用 Node JS 客户端调用链码 
+### 3.2.1初始化代码
 进入客户端代码目录  
 *目前只实现了nodejs的客户端  
+
 ```shell
 cd client/nodejs
 ```
@@ -121,7 +138,7 @@ cd client/nodejs
 ```shell
 npm install
 ```
-### 3.2.创建用户
+### 3.2.2.创建用户
 创建管理员账户
 ```shell
 node ./enrollAdmin.js
@@ -130,7 +147,7 @@ node ./enrollAdmin.js
 ```shell
 node ./registerUser.js
 ```
-### 3.3.调用chaincode
+### 3.2.3.调用chaincode
 ```shell
 node ./invoke.js [chaincode_name] [function_name] [args]
 ```
