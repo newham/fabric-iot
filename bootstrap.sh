@@ -128,7 +128,7 @@ pullDockerImages() {
 }
 
 DOCKER=true
-SAMPLES=true
+SAMPLES=false
 BINARIES=true
 
 # Parse commandline args pull out
@@ -179,6 +179,8 @@ if [ "$SAMPLES" == "true" ]; then
     echo "Clone hyperledger/fabric-samples repo"
     echo
     cloneSamplesRepo
+elif [ "$SAMPLES" == "false" ]; then
+    mkdir fabric-samples && cd fabric-samples
 fi
 if [ "$BINARIES" == "true" ]; then
     echo
@@ -186,8 +188,9 @@ if [ "$BINARIES" == "true" ]; then
     echo
     pullBinaries
 #     by liuhan
+    cd ../
     echo
-    echo "Set Fabric binaries to PATH"
+    echo "Set Fabric binaries ($(pwd)/fabric-samples/bin) to PATH"
     echo
     export PATH=$PATH:$(pwd)/fabric-samples/bin
 fi
